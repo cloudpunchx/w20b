@@ -38,6 +38,7 @@ def close_connection(cursor):
 def execute_statement(cursor, statement, args=[]):
     try:
         cursor.execute(statement, args)
+        # run_statement(statement, args)
         result = cursor.fetchall()
         return result
     except mariadb.IntegrityError as e:
