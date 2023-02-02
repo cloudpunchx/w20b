@@ -38,9 +38,8 @@ def close_connection(cursor):
 def execute_statement(cursor, statement, args=[]):
     try:
         cursor.execute(statement, args)
-        # run_statement(statement, args)
-        result = cursor.fetchall()
-        return result
+        results = cursor.fetchall()
+        return results
     except mariadb.IntegrityError as e:
         print("Integrity error", e)
     except mariadb.ProgrammingError as e:
@@ -53,10 +52,7 @@ def execute_statement(cursor, statement, args=[]):
 def run_statement(statement, args=[]):
     cursor = connect_db()
     if (cursor == None):
-        return None
+        return "Connection Error"
     results = execute_statement(cursor, statement, args)
-    if (results == None):
-        return None
     close_connection(cursor)
     return results
-

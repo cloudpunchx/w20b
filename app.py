@@ -3,25 +3,19 @@ from dbhelpers import connect_db, close_connection, execute_statement, run_state
 
 # Function for Verifying Log In
 def login():
-    # is_valid = False
-    # while not is_valid:
-        print("Please Log In:")
-        alias = input("Enter Alias: ")
-        password = input("Enter Password: ")
-        # cursor = connect_db()
-        result = run_statement("CALL verify_user(?,?)", [alias, password])
-        # close_connection(cursor)
-        for user_id in result:
-            print("Welcome User: {}".format(user_id[0]))
+    print("Please Log In:")
+    alias = input("Enter Alias: ")
+    password = input("Enter Password: ")
+    result = run_statement("CALL verify_user(?,?)", [alias, password])
+    for user_id in result:
+        print("Welcome User: {}".format(user_id[0]))
 
 # Function for Entering New Exploit
 def create_exploit():
     print("Create New Exploit:")
     content = input("Enter Content: ")
     user_id = input("Enter User ID: ")
-    # cursor = connect_db()
     run_statement("CALL create_exploit(?,?)", [content, user_id])
-    # close_connection(cursor)
     print("Successfully Created Exploit")
     
 
@@ -29,9 +23,7 @@ def create_exploit():
 def view_owned_exploits():
     print("Viewing Owned Exploits: ")
     user_id = input("Enter User ID: ")
-    # cursor = connect_db()
     result = run_statement("CALL view_own_exploits(?)", [user_id])
-    # close_connection(cursor)
     for post in result:
         print("User Id: {} Content: {}".format(user_id, post))
 
@@ -39,9 +31,7 @@ def view_owned_exploits():
 def discover_exploits():
     print("Discover Exploits From Other Users: ")
     user_id = input("Enter User ID: ")
-    # cursor = connect_db()
     result = run_statement("CALL discover_exploits(?)", [user_id])
-    # close_connection(cursor)
     for post in result:
         print("User Id: {} Content: {}".format(user_id, post))
 
@@ -50,9 +40,7 @@ def signup():
     print("Sign Up:")
     alias = input("Enter Alias: ")
     password = input("Enter Password: ")
-    # cursor = connect_db()
     run_statement("CALL signup(?,?)", [alias, password])
-    # close_connection(cursor)
     print("Welcome User: ", alias)
 
 # Script for Hacker Site
