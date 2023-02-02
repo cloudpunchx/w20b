@@ -18,3 +18,27 @@ def connect_db():
         print("Could not connect to the database", e)
     except Exception as e:
         print("Something went wrong", e)
+
+# Function to Close Cursor/Connection
+def close_connection(cursor):
+    try:
+        conn = cursor.connection
+        cursor.close()
+        conn.close()
+    except Exception:
+        print("Error closing connection.")
+
+# Function to Execute Statements, including with args
+def execute_statement(cursor, statement, args=[]):
+    try:
+        cursor.execute(statement, args)
+        result = cursor.fetchall()
+        return result
+    except mariadb.IntegrityError as e:
+        print(e)
+    except mariadb.ProgrammingError as e:
+        print("Error, please check syntax.", e)
+    except mariadb.OperationalError as e:
+        print("Something went wrong with the database.", e)
+    except Exception as e:
+        print("Something went wrong.", e)
