@@ -25,8 +25,14 @@ def close_connection(cursor):
         conn = cursor.connection
         cursor.close()
         conn.close()
-    except Exception:
-        print("Error closing connection.")
+    except mariadb.IntegrityError as e:
+        print("Integrity error", e)
+    except mariadb.ProgrammingError as e:
+        print("Error, please check syntax.", e)
+    except mariadb.OperationalError as e:
+        print("Something went wrong with the database.", e)
+    except Exception as e:
+        print("Error closing connection.", e)
 
 # Function to Execute Statements, including with args
 def execute_statement(cursor, statement, args=[]):
@@ -35,10 +41,21 @@ def execute_statement(cursor, statement, args=[]):
         result = cursor.fetchall()
         return result
     except mariadb.IntegrityError as e:
-        print(e)
+        print("Integrity error", e)
     except mariadb.ProgrammingError as e:
         print("Error, please check syntax.", e)
     except mariadb.OperationalError as e:
         print("Something went wrong with the database.", e)
     except Exception as e:
         print("Something went wrong.", e)
+
+def run_statement(statement, args=[]):
+    cursor = connect_db()
+    if (cursor == None):
+        return None
+    results = execute_statement(cursor, statement, args)
+    if (results == None):
+        return None
+    close_connection(cursor)
+    return results
+
