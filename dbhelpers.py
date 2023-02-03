@@ -1,7 +1,7 @@
 import mariadb
 import dbcreds
 
-# Function to Connect to DB
+# Connect DB is Ready to go and be re-used for projects!
 def connect_db():
     try:
         conn = mariadb.connect(
@@ -15,24 +15,22 @@ def connect_db():
         cursor = conn.cursor()
         return cursor
     except mariadb.OperationalError as e:
-        print("Could not connect to the database", e)
+        print("OPERATIONAL ERROR: ", e)
     except Exception as e:
-        print("Something went wrong", e)
+        print("UNEXPECTED ERROR: ", e)
 
 # Function to Close Cursor/Connection
-def close_connection(cursor):
+def disconnect_db(cursor):
     try:
         conn = cursor.connection
         cursor.close()
         conn.close()
-    except mariadb.IntegrityError as e:
-        print("Integrity error", e)
-    except mariadb.ProgrammingError as e:
-        print("Error, please check syntax.", e)
     except mariadb.OperationalError as e:
-        print("Something went wrong with the database.", e)
+        print("OPERATIONAL ERROR: ", e)
+    except mariadb.InternalError as e:
+        print("INTERNAL ERROR: ", e)
     except Exception as e:
-        print("Error closing connection.", e)
+        print("UNEXPECTED ERROR:", e)
 
 # Function to Execute Statements, including with args
 def execute_statement(cursor, statement, args=[]):
@@ -40,19 +38,34 @@ def execute_statement(cursor, statement, args=[]):
         cursor.execute(statement, args)
         results = cursor.fetchall()
         return results
-    except mariadb.IntegrityError as e:
-        print("Integrity error", e)
     except mariadb.ProgrammingError as e:
-        print("Error, please check syntax.", e)
-    except mariadb.OperationalError as e:
-        print("Something went wrong with the database.", e)
+        print("Syntax error in your SQL statement: ", e)
+        return str(e)
+    except mariadb.IntegrityError as e:
+        print("The statement failed to execute due to integrity error, ", e)
+        return str(e)
+    except mariadb.DataError as e:
+        print("DATA ERROR: ", e)
+        return str(e)
     except Exception as e:
-        print("Something went wrong.", e)
+        print("Unexpected error ", e)
+        return str(e)
 
-def run_statement(statement, args=[]):
+# Function to Run Statement
+def run_statement(statement : str, args=[]):
+    """
+    This function expects a valid SQL statement and an optional list of arguments. It connects to the DB, executes the statement, 
+    and closes the connection. 
+    If the connection to the DB fails, it returns None without running the statement
+
+    Args:
+        statement (str): A valid SQL query.
+        args (list, optional): The list of arguments. Defaults to [].
+    """
     cursor = connect_db()
     if (cursor == None):
-        return "Connection Error"
-    results = execute_statement(cursor, statement, args)
-    close_connection(cursor)
-    return results
+        print("Failed to connect to the DB, statement will not run.")
+        return None
+    result = execute_statement(cursor, statement, args)
+    disconnect_db(cursor)
+    return result

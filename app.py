@@ -1,42 +1,49 @@
-from dbhelpers import connect_db, close_connection, execute_statement, run_statement
-
-# LEAVING OFF WITH NEEDING TO COMMENT, AND CANT GET ERRORS TO GO AWAY EVEN THOUGH ITS SUCCESS
-# CURSOR DOESNT HAVE A RESULT SET
+from dbhelpers import run_statement
 
 # Function for Verifying Log In
 def login():
     is_valid = False
-    while not is_valid: 
-        print("Please Log In:")
+    while not is_valid:
+        print("Log In")
         alias = input("Enter Alias: ")
         password = input("Enter Password: ")
-        results = run_statement("CALL verify_user(?,?)", [alias, password])
-        for user_id in results:
-            print("Welcome User: {}".format(user_id[0]))
+        result = run_statement("CALL verify_user(?, ?)", [alias, password])
+        if (type(result) == list):
+            print("Successful login.")
             is_valid = True
-            user_id = user_id[0]
-            return user_id
+            return result
+        else:
+            print("There was an error: "+ result)
 
 # Function for Entering New Exploit
-def create_exploit(user_id):
+def create_exploit():
+    user_id = input("Enter User Id: ")
     print("Create New Exploit:")
     content = input("Enter Content: ")
     run_statement("CALL create_exploit(?,?)", [content, user_id])
     print("Successfully Created Exploit")
 
 # Function to view owned exploits
-def view_owned_exploits(user_id):
+def view_owned_exploits():
+    user_id = input("Enter User Id: ")
     print("Viewing Owned Exploits: ")
     result = run_statement("CALL view_own_exploits(?)", [user_id])
-    for post in result:
-        print("User Id: {} Content: {}".format(user_id, post))
+    if (type(result) == list):
+        for exploit in result:
+            print(exploit)
+    else:
+        print("There was an error: "+ result)
 
 # Function to discover other user's exploits
-def discover_exploits(user_id):
+def discover_exploits():
+    user_id = input("Enter User Id: ")
     print("Discover Exploits From Other Users: ")
     result = run_statement("CALL discover_exploits(?)", [user_id])
-    for post in result:
-        print("User Id: {} Content: {}".format(user_id, post))
+    if (type(result) == list):
+        for exploit in result:
+            print("Post Id:", exploit)
+    else:
+        print("There was an error: "+ result)
 
 # Bonus 1: Function to Sign UP
 def signup():
@@ -50,10 +57,11 @@ def signup():
         is_valid = True
 
 # Bonus 2: Function to modify exploit belonging to them
-def edit_exploit(user_id):
+def edit_exploit():
     is_valid = False
     while not is_valid: 
         print("Edit Existing Exploit:")
+        user_id = input("Enter User Id: ")
         exploit_id = input("Enter Exploit ID: ")
         content = input("Enter New Content: ")
         run_statement("CALL edit_exploit(?,?,?)", [content, exploit_id, user_id])
@@ -62,45 +70,38 @@ def edit_exploit(user_id):
 
 # Script for Hacker Site
 def hacker_site_script():
+    print("Welcome, please Log In or Sign Up:\
+        \n1. Log In\
+        \n2. Sign Up")
+    selection = input("Enter Selection: ")
+    if selection == '1':
+        login()
+    elif selection == '2':
+        signup()
+    else:
+        print("Invalid Selection, Choose From 1-2")
     is_valid = False
     while not is_valid:
-        print("Welcome, please Log In or Sign Up:\
-            \n1. Log In\
-            \n2. Sign Up")
+        print("Please select from the following:\
+            \n1. Enter New Exploit\
+            \n2. View Owned Exploits\
+            \n3. Discover Exploits\
+            \n4. Exit\
+            \n5. Edit Exploit")
         selection = input("Enter Selection: ")
-        if selection == '1':
-            login()
+        if (selection == '1'):
+            create_exploit()
+        elif (selection == '2'):
+            view_owned_exploits()
+        elif (selection == '3'):
+            discover_exploits()
+        elif (selection == '4'):
+            print("Log Out Successful")
             is_valid = True
-        elif selection == '2':
-            signup()
-            is_valid = True
+        elif (selection == '5'):
+            edit_exploit()
         else:
-            print("Invalid Selection, Choose From 1-2")
-        is_valid = False
-        while not is_valid:
-            print("Please select from the following:\
-                \n1. Enter New Exploit\
-                \n2. View Owned Exploits\
-                \n3. Discover Exploits\
-                \n4. Exit\
-                \n5. Edit Exploit")
-            selection = input("Enter Selection: ")
-            if (selection == '1'):
-                user_id = login()
-                create_exploit(user_id)
-            elif (selection == '2'):
-                user_id = login()
-                view_owned_exploits(user_id)
-            elif (selection == '3'):
-                user_id = login()
-                discover_exploits(user_id)
-            elif (selection == '4'):
-                print("Log Out Successful")
-                is_valid = True
-            elif (selection == '5'):
-                user_id = login()
-                edit_exploit(user_id)
-            else:
-                print("Invalid Selection, Choose From 1-5")
+            print("Invalid Selection, Choose From 1-5")
+
 
 hacker_site_script()
